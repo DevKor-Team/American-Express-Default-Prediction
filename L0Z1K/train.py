@@ -7,7 +7,7 @@ import numpy as np
 import lightgbm as lgb
 from lightgbm import LGBMClassifier, log_evaluation
 from sklearn.model_selection import StratifiedKFold
-from wandb.lightgbm import wandb_callback
+from wandb.lightgbm import wandb_callback, log_summary
 
 from data import load_data, transform
 from model import params
@@ -18,8 +18,7 @@ if __name__ == "__main__":
     seed_everything(42)
     wandb.init(
         project="AEDP-Day2",
-        name="LGBM_DART_FE",
-        notes="Categorical Feature -> 1st, 2nd Last",
+        name="FE_last-mean",
     )
     X, y = load_data(
         X_path=os.path.join(BASE_DIR, "raddar/train.parquet"),
@@ -40,21 +39,16 @@ if __name__ == "__main__":
     model = lgb.train(
         params=params,
         train_set=lgb_train,
-        num_boost_round=10000,
+        num_boost_round=2000,
         valid_sets=[lgb_train, lgb_valid],
         feval=lgb_amex_metric,
         callbacks=[
             log_evaluation(100),
             wandb_callback(),
-            lgb.early_stopping(
-                200,
-                first_metric_only=True,
-                verbose=True,
-            ),
         ],
     )
 
-    # log_summary(model, save_model_checkpoint=True)
+    log_summary(model, save_model_checkpoint=True)
 
     # Predict validation
     val_pred = model.predict(X_va)
