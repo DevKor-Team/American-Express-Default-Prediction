@@ -39,7 +39,7 @@ if __name__ == "__main__":
     model = lgb.train(
         params=params,
         train_set=lgb_train,
-        num_boost_round=2000,
+        num_boost_round=10000,
         valid_sets=[lgb_train, lgb_valid],
         feval=lgb_amex_metric,
         callbacks=[
