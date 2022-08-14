@@ -9,7 +9,7 @@ import time
 
 if __name__ == "__main__":
     seed_everything(42)
-    model = joblib.load("checkpoints/day3/cv_0.7973.pkl")
+    model = joblib.load("checkpoints/day4/cv_0.79796.pkl")
 
     start = time.time()
 

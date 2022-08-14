@@ -4,7 +4,10 @@ import pandas as pd
 
 from typing import Union
 from env import *
+from tqdm.auto import tqdm
+import warnings
 
+warnings.filterwarnings('ignore')
 
 def load_data(X_path: str, y_path: Union[str, None] = None):
     X = pd.read_parquet(X_path)
@@ -22,8 +25,8 @@ def load_data(X_path: str, y_path: Union[str, None] = None):
 
 
 def transform(
-    X: pd.DataFrame,
-    y: Union[pd.DataFrame, None] = None,
+        X: pd.DataFrame,
+        y: Union[pd.DataFrame, None] = None,
 ):
     all_cols = [c for c in list(X.columns) if c not in ["customer_ID", "S_2"]]
     cat_features = [
@@ -53,20 +56,37 @@ def transform(
     )
     num_df.columns = ["_".join(x) for x in num_df.columns]
 
-    for num_feature in num_features:
+    for num_feature in tqdm(num_features):
         num_df.loc[:, f"{num_feature}_diff1"] = (
-            num_df[f"{num_feature}_last"] - num_df[f"{num_feature}_mean"]
+                num_df[f"{num_feature}_last"] - num_df[f"{num_feature}_mean"]
         )
         num_df.loc[:, f"{num_feature}_diff2"] = (
-            num_df[f"{num_feature}_first"] - num_df[f"{num_feature}_mean"]
+                num_df[f"{num_feature}_first"] - num_df[f"{num_feature}_mean"]
         )
         num_df.loc[:, f"{num_feature}_lag_sub"] = (
-            num_df[f"{num_feature}_last"] - num_df[f"{num_feature}_first"]
+                num_df[f"{num_feature}_last"] - num_df[f"{num_feature}_first"]
         )
         num_df.loc[:, f"{num_feature}_lag_div"] = (
-            num_df[f"{num_feature}_last"] / num_df[f"{num_feature}_first"]
+                num_df[f"{num_feature}_last"] / num_df[f"{num_feature}_first"]
         )
-
+        num_df.loc[:, f"{num_feature}_range"] = (
+                num_df[f"{num_feature}_max"] - num_df[f"{num_feature}_min"]
+        )
+        num_df.loc[:, f"{num_feature}_range_div"] = (
+                num_df[f"{num_feature}_max"] / num_df[f"{num_feature}_min"]
+        )
+        num_df.loc[:, f"{num_feature}_max_last"] = (
+                num_df[f"{num_feature}_max"] - num_df[f"{num_feature}_last"]
+        )
+        num_df.loc[:, f"{num_feature}_max_first"] = (
+                num_df[f"{num_feature}_max"] - num_df[f"{num_feature}_first"]
+        )
+        num_df.loc[:, f"{num_feature}_min_last"] = (
+                num_df[f"{num_feature}_min"] - num_df[f"{num_feature}_last"]
+        )
+        num_df.loc[:, f"{num_feature}_min_first"] = (
+                num_df[f"{num_feature}_min"] - num_df[f"{num_feature}_first"]
+        )
 
     # Categorical Feature
     cat_df = (

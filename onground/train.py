@@ -16,6 +16,10 @@ from utils import lgb_amex_metric, amex_metric, seed_everything
 from env import *
 import time
 
+import warnings
+
+warnings.filterwarnings('ignore')
+
 if __name__ == "__main__":
     seed_everything(42)
     wandb.init(
@@ -30,6 +34,9 @@ if __name__ == "__main__":
         y_path=os.path.join(BASE_DIR, "data/train_labels.csv"),
     )
     X, y = transform(X, y)
+    torch.save(X, os.path.join(BASE_DIR, "data/train_X.pt"))
+    torch.save(y, os.path.join(BASE_DIR, "data/train_y.pt"))
+
     # X, y = X.to_pandas(), y.to_pandas()
     print("transformed complete")
     # X.to_parquet(os.path.join(BASE_DIR, "data/X.parquet"))
@@ -70,4 +77,4 @@ if __name__ == "__main__":
     score = amex_metric(y_va, val_pred)
     print(f"Our CV score is {score:.4f}")
 
-    joblib.dump(model, f"checkpoints/day2/cv_{score:.4f}.pkl")
+    joblib.dump(model, f"checkpoints/day4/cv_{score:.5f}.pkl")
