@@ -16,7 +16,10 @@ from env import *
 
 if __name__ == "__main__":
     seed_everything(42)
-    wandb.init(project="AEDP", name="PubSol")
+    wandb.init(
+        project="AEDP-Day2",
+        name="FE_last-mean",
+    )
     X, y = load_data(
         X_path=os.path.join(BASE_DIR, "raddar/train.parquet"),
         y_path=os.path.join(BASE_DIR, "raw/train_labels.csv"),
@@ -36,21 +39,16 @@ if __name__ == "__main__":
     model = lgb.train(
         params=params,
         train_set=lgb_train,
-        num_boost_round=1000,
+        num_boost_round=10000,
         valid_sets=[lgb_train, lgb_valid],
         feval=lgb_amex_metric,
         callbacks=[
             log_evaluation(100),
             wandb_callback(),
-            lgb.early_stopping(
-                200,
-                first_metric_only=True,
-                verbose=True,
-            ),
         ],
     )
 
-    # log_summary(model, save_model_checkpoint=True)
+    log_summary(model, save_model_checkpoint=True)
 
     # Predict validation
     val_pred = model.predict(X_va)
@@ -58,4 +56,4 @@ if __name__ == "__main__":
     score = amex_metric(y_va, val_pred)
     print(f"Our CV score is {score:.4f}")
 
-    joblib.dump(model, f"./checkpoints/cv_{score:.4f}.pkl")
+    joblib.dump(model, f"./checkpoints/day2/cv_{score:.4f}.pkl")

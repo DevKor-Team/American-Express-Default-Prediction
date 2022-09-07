@@ -9,7 +9,7 @@ from env import *
 
 if __name__ == "__main__":
     seed_everything(42)
-    model = joblib.load("./checkpoints/cv_0.7724.pkl")
+    model = joblib.load("./checkpoints/day2/cv_0.7954.pkl")
 
     X, _ = load_data(
         X_path=os.path.join(BASE_DIR, "raddar/test.parquet"),
